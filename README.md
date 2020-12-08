@@ -1,2 +1,2 @@
 # **BostonAir**
-This is a project predicting Beijing air quality using a Bayesian approach
+This is a project predicting air quality in Suffolk, MA before and after the covid outbreak.
