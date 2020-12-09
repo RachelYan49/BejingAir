@@ -76,7 +76,8 @@ aqi_clean_func <- function(data){
    data <- data %>%
     filter(State.Name == "Massachusetts",
            county.Name=="Suffolk") %>%
-    select(date = Date, 
+      mutate(date = as.Date(Date)) %>%
+    select(date, 
            aqi = AQI)
    assign(new_name, data, envir=.GlobalEnv)
 }
@@ -87,6 +88,7 @@ aqi_clean_func <- function(data){
 aqi_clean_func(aqi19)
 aqi_clean_func(aqi20)
 ```
+
 
 
 
