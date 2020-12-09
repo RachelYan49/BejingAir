@@ -1,0 +1,57 @@
+---
+title: "data wrangling"
+author: "Iris Zhong"
+date: "12/8/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load package}
+library(here)
+library(tidyverse)
+library(dplyr)
+```
+
+```{r read data}
+aqi_2019 <- read.csv(here("daily_aqi_by_county_2019.csv"))
+aqi_2020 <- read.csv(here("daily_aqi_by_county_2020.csv"))
+wind_2019 <- read.csv(here("daily_WIND_2019.csv"))
+wind_2020 <- read.csv(here("daily_WIND_2020.csv"))
+temp_2019 <- read.csv(here("daily_TEMP_2019.csv"))
+temp_2020 <- read.csv(here("daily_TEMP_2020.csv"))
+press_2019 <- read.csv(here("daily_press_2019.csv"))
+press_2020 <- read.csv(here("daily_press_2020.csv"))
+rhdp_2019 <- read.csv(here("daily_RH_DP_2019.csv"))
+rhdp_2020 <- read.csv(here("daily_RH_DP_2020.csv"))
+```
+
+2019: whole year
+2020: to 7/31
+
+```{r write function}
+clean_func <- function(data){
+   name <- deparse(substitute(data))
+   new_name <- paste(name,"cleaned",sep="_")
+   data <- data %>%
+    filter(State.Name == "Massachusetts",
+           County.Name=="Suffolk") %>%
+    select(date = Date.Local, 
+           site = Local.Site.Name, 
+           mean = Arithmetic.Mean)
+   assign(new_name, data, envir=.GlobalEnv)
+}
+```
+
+
+
+```{r}
+clean_func(wind_2019)
+```
+
+
+
+
+
