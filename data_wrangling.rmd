@@ -1,0 +1,169 @@
+---
+title: "data wrangling"
+author: "Iris Zhong"
+date: "12/8/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load package}
+library(here)
+library(tidyverse)
+library(dplyr)
+library(lubridate)
+```
+
+```{r read data}
+aqi19 <- read.csv(here("raw_data/daily_aqi_by_county_2019.csv"))
+aqi20 <- read.csv(here("raw_data/daily_aqi_by_county_2020.csv"))
+wind19 <- read.csv(here("raw_data/daily_WIND_2019.csv"))
+wind20 <- read.csv(here("raw_data/daily_WIND_2020.csv"))
+temp19 <- read.csv(here("raw_data/daily_TEMP_2019.csv"))
+temp20 <- read.csv(here("raw_data/daily_TEMP_2020.csv"))
+press19 <- read.csv(here("raw_data/daily_press_2019.csv"))
+press20 <- read.csv(here("raw_data/daily_press_2020.csv"))
+rhdp19 <- read.csv(here("raw_data/daily_RH_DP_2019.csv"))
+rhdp20 <- read.csv(here("raw_data/daily_RH_DP_2020.csv"))
+```
+
+Data: 
+2019: whole year
+2020: weather measures - to 7/31
+      aqi - to 8/31
+
+```{r write weather function}
+weather_clean_func <- function(data){
+   name <- deparse(substitute(data))
+   new_name <- paste(name,"cleaned",sep="_")
+   data <- data %>%
+    filter(State.Name == "Massachusetts",
+           County.Name=="Suffolk", 
+           Local.Site.Name == "DUDLEY SQUARE ROXBURY") %>%
+   mutate(date = as.Date(Date.Local)) %>%
+   select(date, 
+           mean = Arithmetic.Mean,
+           unit = Units.of.Measure)
+   assign(new_name, data, envir=.GlobalEnv)
+}
+
+
+```
+
+```{r}
+ wind19 %>%
+    filter(State.Name == "Massachusetts",
+           County.Name=="Suffolk")
+```
+
+**Note: wind is only measured in one site in both 2019 and 2020; It shows up twice because there are two units (knots vs. degrees compass).**
+**wind 2020 no data from 7/14/2020**
+
+```{r}
+weather_clean_func(wind19)
+weather_clean_func(wind20)
+weather_clean_func(temp19)
+weather_clean_func(temp20)
+weather_clean_func(press19)
+weather_clean_func(press20)
+weather_clean_func(rhdp19)
+weather_clean_func(rhdp20)
+
+
+```
+
+```{r write aqi function}
+aqi_clean_func <- function(data){
+   name <- deparse(substitute(data))
+   new_name <- paste(name,"cleaned",sep="_")
+   data <- data %>%
+    filter(State.Name == "Massachusetts",
+           county.Name=="Suffolk") %>%
+      mutate(date = as.Date(Date)) %>%
+    select(date, 
+           aqi = AQI)
+   assign(new_name, data, envir=.GlobalEnv)
+}
+```
+
+
+```{r}
+aqi_clean_func(aqi19)
+aqi_clean_func(aqi20)
+```
+
+```{r}
+# renaming everything
+# wind_19/20 get rid of dual units 
+wind19_cleaned <- wind19_cleaned %>%
+   filter(unit == "Knots")%>%
+   select(-unit, wind_mean = mean)
+
+wind20_cleaned <- wind20_cleaned %>%
+   filter(unit == "Knots") %>%
+   select(-unit, wind_mean = mean)
+
+# temp_19 
+temp19_cleaned <- temp19_cleaned %>%
+   select(-unit, temp_mean = mean)
+
+temp20_cleaned <- temp20_cleaned %>%
+   select(-unit, temp_mean = mean)
+
+# rhdp
+
+rhdp19_cleaned <- rhdp19_cleaned %>%
+   select(-unit, rhdp_mean = mean)
+
+rhdp20_cleaned <- rhdp20_cleaned %>%
+   select(-unit, rhdp_mean = mean)
+
+# press
+
+press19_cleaned <- press19_cleaned %>%
+   select(-unit, press_mean = mean)
+
+press20_cleaned <- press20_cleaned %>%
+   select(-unit, press_mean = mean)
+```
+
+```{r}
+# join datasets
+## boston_air 19  
+boston_air_19 <- inner_join(press19_cleaned, rhdp19_cleaned, by = "date") %>%
+   inner_join(temp19_cleaned, by = "date") %>%
+   inner_join(wind19_cleaned, by = "date") %>%
+   inner_join(aqi19_cleaned, by = "date" )
+
+## boston_air 20  <!-- we took out aqi and wind measures on 7/14 and AAAAAAAAAAAgust-->
+boston_air_20 <- inner_join(press20_cleaned, rhdp20_cleaned, by = "date") %>%
+   inner_join(temp20_cleaned, by = "date") %>%
+   inner_join(wind20_cleaned, by = "date") %>%
+   inner_join(aqi20_cleaned, by = "date" )
+
+## full join
+
+boston_air <- rbind(boston_air_19,boston_air_20)
+   
+```
+
+```{r}
+# creat new variable 
+boston_air <- boston_air %>%
+   mutate(covid_yes = ifelse(date < "2020-03-10",0,1),
+          month = month(as.POSIXlt(date,"%Y/%m/%d")),
+          year = year(as.POSIXlt(date,"%Y/%m/%d")),
+          season = ifelse(month == 12|month == 1|month == 2,"winter",
+                        ifelse(month == 3|month == 4|month == 5,"spring",
+                               ifelse(month == 6|month == 7|month == 8,"summer","fall"))))
+   
+```
+
+
+# write data files
+```{r}
+write_csv(boston_air, 'boston_air_cleaned.csv')
+```
+
