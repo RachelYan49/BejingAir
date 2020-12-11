@@ -137,7 +137,7 @@ boston_air_19 <- inner_join(press19_cleaned, rhdp19_cleaned, by = "date") %>%
    inner_join(wind19_cleaned, by = "date") %>%
    inner_join(aqi19_cleaned, by = "date" )
 
-## boston_air 20  <!-- we took out aqi and wind measures on 7/14 and AAAAAAAAAAAgust-->
+## boston_air 20  <!-- we took out aqi and wind measures on 7/14 and August-->
 boston_air_20 <- inner_join(press20_cleaned, rhdp20_cleaned, by = "date") %>%
    inner_join(temp20_cleaned, by = "date") %>%
    inner_join(wind20_cleaned, by = "date") %>%
