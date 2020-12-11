@@ -1,0 +1,51 @@
+---
+title: "Exploratory Analysis"
+author: "rachel"
+date: "12/10/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r packages}
+library(tidyverse)
+library(bayesrules)
+library(bayesplot)
+library(rstanarm)
+library(ggplot2)
+```
+
+
+```{r}
+boston_air <- read_csv("boston_air_cleaned.csv")%>%
+  mutate(time = format(as.Date(date),"%m/%d"))
+
+boston_air$covid_yes <- as.factor(boston_air$covid_yes)
+boston_air$month <- as.factor(boston_air$month)
+
+```
+
+# descriptive stats
+```{r}
+# time series plots
+
+# aqi trend by month
+
+ggplot(boston_air,aes(date, aqi)) + geom_line()+
+  geom_smooth(method = "lm")
+
+ggplot(boston_air[boston_air$year==2019,],aes(date, aqi, col = month)) + geom_line()+
+  geom_smooth(method = "lm")
+
+ggplot(boston_air[boston_air$year==2020,],aes(date, aqi, col = month)) + geom_line()+
+  geom_smooth(method = "lm")
+
+# Rachel will write a function or may zhong laoshi 
+
+
+ggplot(boston_air,aes(date, aqi)) + geom_line()+
+  geom_smooth(method = "lm")
+```
+
