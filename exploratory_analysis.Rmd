@@ -15,12 +15,14 @@ library(bayesrules)
 library(bayesplot)
 library(rstanarm)
 library(ggplot2)
+library(Hmisc)
 ```
 
 
 ```{r}
 boston_air <- read_csv("boston_air_cleaned.csv")%>%
-  mutate(time = format(as.Date(date),"%m/%d"))
+  mutate(time = format(as.Date(date),"%m/%d"))%>%
+  na.omit()
 
 boston_air$covid_yes <- as.factor(boston_air$covid_yes)
 boston_air$month <- as.factor(boston_air$month)
@@ -30,8 +32,20 @@ boston_air$month <- as.factor(boston_air$month)
 # descriptive stats
 ```{r}
 # time series plots
+##########################################
+TimeSeries<- function(df, x, y) { 
+ ggplot(data = df, aes(x={{x}}, y={{y}})) +
+    geom_line() +
+    geom_smooth(method = "lm")
+}
+#########################################
 
-# aqi trend by month
+# overall trend for each measures 
+TimeSeries(boston_air,date,aqi)
+TimeSeries(boston_air,date,press_mean)
+TimeSeries(boston_air,date,rhdp_mean)
+TimeSeries(boston_air,date,temp_mean)
+TimeSeries(boston_air,date,wind_mean)
 
 ggplot(boston_air,aes(date, aqi)) + geom_line()+
   geom_smooth(method = "lm")
@@ -42,11 +56,14 @@ ggplot(boston_air[boston_air$year==2019,],aes(date, aqi, col = month)) + geom_li
 ggplot(boston_air[boston_air$year==2020,],aes(date, aqi, col = month)) + geom_line()+
   geom_smooth(method = "lm")
 
-# Rachel will write a function or may zhong laoshi 
+# correlation 
+boston_cor <- c("press_mean","rhdp_mean","temp_mean","wind_mean","aqi")
+boston_air_corr <-rcorr(as.matrix(boston_air[,boston_cor]))
+boston_air_corr$r
 
-
-ggplot(boston_air,aes(date, aqi)) + geom_line()+
-  geom_smooth(method = "lm")
+                        
+                      
+                        
 ```
 
 
