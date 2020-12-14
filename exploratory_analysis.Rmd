@@ -49,3 +49,5 @@ ggplot(boston_air,aes(date, aqi)) + geom_line()+
   geom_smooth(method = "lm")
 ```
 
+
+
