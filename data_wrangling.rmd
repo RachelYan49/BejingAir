@@ -27,14 +27,9 @@ press19 <- read.csv(here("raw_data/daily_press_2019.csv"))
 press20 <- read.csv(here("raw_data/daily_press_2020.csv"))
 rhdp19 <- read.csv(here("raw_data/daily_RH_DP_2019.csv"))
 rhdp20 <- read.csv(here("raw_data/daily_RH_DP_2020.csv"))
-haps19 <- read.csv(here("raw_data/Toxic/daily_HAPS_2019.csv"))
-haps20 <- read.csv(here("raw_data/Toxic/daily_HAPS_2020.csv"))
-lead19 <- read.csv(here("raw_data/Toxic/daily_LEAD_2019.csv"))
-lead20 <- read.csv(here("raw_data/Toxic/daily_LEAD_2020.csv"))
 noxnoy19 <- read.csv(here("raw_data/Toxic/daily_NONOxNOy_2019.csv"))
 noxnoy20 <- read.csv(here("raw_data/Toxic/daily_NONOxNOy_2020.csv"))
-vocs19 <- read.csv(here("raw_data/Toxic/daily_VOCS_2019.csv"))
-vocs20 <- read.csv(here("raw_data/Toxic/daily_VOCS_2020.csv"))
+
 ```
 
 Data: 
@@ -69,7 +64,7 @@ weather_clean_func <- function(data){
 **Note: wind is only measured in one site in both 2019 and 2020; It shows up twice because there are two units (knots vs. degrees compass).**
 **wind 2020 no data from 7/14/2020**
 
-```{r}
+```{r clean weather data}
 weather_clean_func(wind19)
 weather_clean_func(wind20)
 weather_clean_func(temp19)
@@ -78,7 +73,6 @@ weather_clean_func(press19)
 weather_clean_func(press20)
 weather_clean_func(rhdp19)
 weather_clean_func(rhdp20)
-
 
 ```
 
@@ -97,12 +91,12 @@ aqi_clean_func <- function(data){
 ```
 
 
-```{r}
+```{r clean aqi data}
 aqi_clean_func(aqi19)
 aqi_clean_func(aqi20)
 ```
 
-```{r}
+```{r further cleaning}
 # renaming everything
 # wind_19/20 get rid of dual units 
 wind19_cleaned <- wind19_cleaned %>%
@@ -137,19 +131,46 @@ press20_cleaned <- press20_cleaned %>%
    select(-unit, press_mean = mean)
 ```
 
+
+# NO data wrangling
+```{r}
+no19_cleaned <- noxnoy19 %>%
+   filter(State.Name == "Massachusetts",
+           County.Name=="Suffolk", 
+           Local.Site.Name == "DUDLEY SQUARE ROXBURY",
+           Parameter.Name == "Nitric oxide (NO)",
+          Method.Code == 99) %>%
+   mutate(date = as.Date(Date.Local)) %>%
+      select(date, 
+           no_mean = Arithmetic.Mean)
+
+no20_cleaned <- noxnoy20 %>%
+   filter(State.Name == "Massachusetts",
+           County.Name=="Suffolk", 
+           Local.Site.Name == "DUDLEY SQUARE ROXBURY",
+           Parameter.Name == "Nitric oxide (NO)",
+          Method.Code == 99) %>%
+   mutate(date = as.Date(Date.Local)) %>%
+      select(date, 
+           no_mean = Arithmetic.Mean)
+```
+
+
 ```{r}
 # join datasets
 ## boston_air 19  
 boston_air_19 <- inner_join(press19_cleaned, rhdp19_cleaned, by = "date") %>%
    inner_join(temp19_cleaned, by = "date") %>%
    inner_join(wind19_cleaned, by = "date") %>%
-   inner_join(aqi19_cleaned, by = "date" )
+   inner_join(aqi19_cleaned, by = "date" ) %>%
+   inner_join(no19_cleaned, by = "date")
 
 ## boston_air 20  <!-- we took out aqi and wind measures on 7/14 and August-->
 boston_air_20 <- inner_join(press20_cleaned, rhdp20_cleaned, by = "date") %>%
    inner_join(temp20_cleaned, by = "date") %>%
    inner_join(wind20_cleaned, by = "date") %>%
-   inner_join(aqi20_cleaned, by = "date" )
+   inner_join(aqi20_cleaned, by = "date" ) %>%
+   inner_join(no20_cleaned, by = "date")
 
 ## full join
 
