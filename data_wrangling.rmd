@@ -27,6 +27,14 @@ press19 <- read.csv(here("raw_data/daily_press_2019.csv"))
 press20 <- read.csv(here("raw_data/daily_press_2020.csv"))
 rhdp19 <- read.csv(here("raw_data/daily_RH_DP_2019.csv"))
 rhdp20 <- read.csv(here("raw_data/daily_RH_DP_2020.csv"))
+haps19 <- read.csv(here("raw_data/Toxic/daily_HAPS_2019.csv"))
+haps20 <- read.csv(here("raw_data/Toxic/daily_HAPS_2020.csv"))
+lead19 <- read.csv(here("raw_data/Toxic/daily_LEAD_2019.csv"))
+lead20 <- read.csv(here("raw_data/Toxic/daily_LEAD_2020.csv"))
+noxnoy19 <- read.csv(here("raw_data/Toxic/daily_NONOxNOy_2019.csv"))
+noxnoy20 <- read.csv(here("raw_data/Toxic/daily_NONOxNOy_2020.csv"))
+vocs19 <- read.csv(here("raw_data/Toxic/daily_VOCS_2019.csv"))
+vocs20 <- read.csv(here("raw_data/Toxic/daily_VOCS_2020.csv"))
 ```
 
 Data: 
@@ -166,4 +174,3 @@ boston_air <- boston_air %>%
 ```{r}
 write_csv(boston_air, 'boston_air_cleaned.csv')
 ```
-
